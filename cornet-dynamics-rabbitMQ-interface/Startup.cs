@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace pssg_rabbitmq_interface
 {
@@ -18,7 +19,7 @@ namespace pssg_rabbitmq_interface
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddControllers();
             services.AddSwaggerDocument(c =>
             {
                 c.Title = "Rabbit MQ Interface";
@@ -38,7 +39,7 @@ namespace pssg_rabbitmq_interface
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, Microsoft.AspNetCore.Hosting.IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -49,11 +50,14 @@ namespace pssg_rabbitmq_interface
                 us.DocumentName = "TEST";
             }
             );
-            app.UseSwaggerUi3();
+            app.UseSwaggerUi();
 
             app.UseCors(MyAllowSpecificOrigins);
 
-            app.UseMvc();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
         }
     }
 }

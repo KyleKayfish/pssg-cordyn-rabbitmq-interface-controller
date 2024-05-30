@@ -55,7 +55,7 @@ namespace pssg_rabbitmq_interface.Clients
                 byte[] byteArray = Encoding.ASCII.GetBytes(String.Format("{0}:{1}", username, password));
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
                 RabbitRequest rabbitRequest = new RabbitRequest(count, encoding, truncate, ackmode);
-                HttpResponseMessage httpResponseMessage = httpClient.PostAsJsonAsync(rabbitGetQueueItemsEndpoint, rabbitRequest).Result;
+                HttpResponseMessage httpResponseMessage = httpClient.PostAsync(rabbitGetQueueItemsEndpoint, new StringContent(JsonConvert.SerializeObject(rabbitRequest))).Result;
                 if (httpResponseMessage.IsSuccessStatusCode)
                 {
                     String respData = httpResponseMessage.Content.ReadAsStringAsync().Result;
@@ -152,7 +152,7 @@ namespace pssg_rabbitmq_interface.Clients
                 channel.ExchangeDeclare(parkingLotExchange, ExchangeType.Direct, true);
                 for (BasicGetResult result; (result = channel.BasicGet(parkingLotQueue, false)) != null;)
                 {
-                    byte[] body = result.Body;
+                    byte[] body = result.Body.ToArray();
                     if (Encoding.UTF8.GetString((byte[])result.BasicProperties.Headers["x-request-id"]) == id)
                     {
                         //Ack the message to dequeue
